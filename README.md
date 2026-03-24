@@ -2,6 +2,8 @@
 
 Real-time analytics dashboard for Ondo Finance tokenized assets (OUSG & USDY) with AI-powered market intelligence.
 
+> Quick MVP created in 24h to demonstrate AI/RAG integration with Ondo Finance on-chain data via Dune API/Scrapers
+
 🌐 **Live**: https://aicetro.com
 
 ## Features
