@@ -1,0 +1,338 @@
+<div class="max-w-4xl mx-auto">
+    
+    <!-- Scenario Builder -->
+    <div class="bg-dark-lighter rounded-lg p-8 border border-gray-800 mb-8">
+        <h2 class="text-2xl font-bold mb-6">Scenario Builder</h2>
+        
+        <!-- Preset Scenarios -->
+        <div class="mb-6">
+            <label class="block text-sm text-gray-400 mb-2">Quick Presets</label>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <button onclick="loadPreset('fed_hike')" 
+                        class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm">
+                    Fed Rate Hike
+                </button>
+                <button onclick="loadPreset('sec_regulation')" 
+                        class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm">
+                    SEC Regulation
+                </button>
+                <button onclick="loadPreset('market_crash')" 
+                        class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm">
+                    Market Crash
+                </button>
+                <button onclick="loadPreset('blackrock_entry')" 
+                        class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm">
+                    BlackRock Entry
+                </button>
+                <button onclick="loadPreset('defi_boom')" 
+                        class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm">
+                    DeFi Boom
+                </button>
+                <button onclick="loadPreset('custom')" 
+                        class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm">
+                    Custom
+                </button>
+            </div>
+        </div>
+        
+        <!-- Scenario Details -->
+        <div class="mb-6">
+            <label class="block text-sm text-gray-400 mb-2">Scenario Description</label>
+            <textarea id="scenario-input" 
+                      class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-200 focus:border-primary focus:outline-none"
+                      rows="4"
+                      placeholder="Describe the scenario you want to simulate..."></textarea>
+        </div>
+        
+        <!-- Custom Context -->
+        <div class="mb-6">
+            <label class="block text-sm text-gray-400 mb-2">Custom Context (optional)</label>
+            <textarea id="context-input" 
+                      class="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-200 focus:border-primary focus:outline-none"
+                      rows="2"
+                      placeholder="e.g., 'Strait of Hormuz reopens for shipping on April 1st...'"></textarea>
+        </div>
+        
+        <!-- Run Button -->
+        <button onclick="runSimulation()" 
+                class="w-full px-6 py-4 bg-primary hover:bg-teal-600 text-dark font-bold rounded-lg transition">
+            Run Simulation — 20 agents, ~30 sec
+        </button>
+    </div>
+    
+    <!-- Results Container -->
+    <div id="simulation-results" class="hidden">
+        
+        <div class="bg-dark-lighter rounded-lg p-8 border border-gray-800">
+            <h2 class="text-2xl font-bold mb-6">Simulation Results</h2>
+            
+            <!-- Loading State -->
+            <div id="loading-state" class="text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p class="text-gray-400">Running multi-agent simulation...</p>
+            </div>
+            
+            <!-- Results Content -->
+            <div id="results-content" class="hidden">
+                
+                <!-- Scenario Info -->
+                <div class="mb-6 p-4 bg-gray-900 rounded-lg">
+                    <div class="text-sm text-gray-400">Scenario</div>
+                    <div class="text-lg font-medium" id="result-scenario"></div>
+                    <div class="text-xs text-gray-500 mt-2">
+                        Agents: <span id="result-agents">10</span> | 
+                        Rounds: <span id="result-rounds">2</span> | 
+                        Model: <span id="result-model">nvidia/nemotron-3-super-120b-a12b:free</span>
+                    </div>
+                </div>
+                
+                <!-- Consensus Map -->
+                <div class="mb-6" id="consensus-map-section">
+                    <h3 class="text-lg font-semibold mb-4">Consensus Map</h3>
+                    <div class="space-y-3" id="consensus-map-content">
+                        <div class="flex items-center">
+                            <div class="w-32 text-sm text-gray-400">All Agents (10)</div>
+                            <div class="flex-1 flex space-x-1">
+                                <div class="h-6 bg-green-600" style="width: 0%"></div>
+                                <div class="h-6 bg-gray-600" style="width: 100%"></div>
+                                <div class="h-6 bg-red-600" style="width: 0%"></div>
+                            </div>
+                            <div class="w-32 text-right text-sm mono">0/100/0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Forecast -->
+                <div class="mb-6 p-6 bg-gradient-to-r from-primary/10 to-transparent rounded-lg border border-primary/30" id="forecast-section">
+                    <h3 class="text-lg font-semibold mb-4">Forecast</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <div class="text-sm text-gray-400">OUSG Supply</div>
+                            <div class="text-xl font-bold">Calculating...</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-400">USDY Supply</div>
+                            <div class="text-xl font-bold">Calculating...</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-400">NAV Deviation</div>
+                            <div class="text-xl font-bold">Calculating...</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-400">Risk Level</div>
+                            <div class="text-xl font-bold">Calculating...</div>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-400 mb-2">Confidence: <span class="text-primary font-bold">--</span></div>
+                </div>
+                
+                <!-- Notable Voices -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Notable Voices</h3>
+                    <div class="space-y-3" id="agent-voices">
+                        <!-- Agent responses will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Methodology -->
+                <div class="text-xs text-gray-500 p-4 bg-gray-900 rounded">
+                    <strong>Methodology:</strong> MiroFish-inspired multi-agent simulation. 
+                    10 independent agents, 2 interaction rounds. 
+                    Consensus emerges from inter-agent reaction analysis.
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+    
+</div>
+
+<script>
+    const presets = {
+        fed_hike: "Federal Reserve raises interest rate by 50 basis points in Q2 2026",
+        sec_regulation: "SEC announces new regulatory framework for tokenized securities",
+        market_crash: "Global equity markets drop 15% amid recession fears",
+        blackrock_entry: "BlackRock launches competing tokenized treasury product",
+        defi_boom: "DeFi TVL surges 200% as institutional adoption accelerates",
+        custom: ""
+    };
+    
+    function loadPreset(preset) {
+        document.getElementById('scenario-input').value = presets[preset] || '';
+    }
+    
+    async function runSimulation() {
+        const scenario = document.getElementById('scenario-input').value;
+        const context = document.getElementById('context-input').value;
+        
+        if (!scenario) {
+            alert('Please enter a scenario description');
+            return;
+        }
+        
+        // Show results container with loading state
+        document.getElementById('simulation-results').classList.remove('hidden');
+        document.getElementById('loading-state').classList.remove('hidden');
+        document.getElementById('results-content').classList.add('hidden');
+        
+        // Scroll to results
+        document.getElementById('simulation-results').scrollIntoView({ behavior: 'smooth' });
+        
+        try {
+            const response = await fetch('/api/simulate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ scenario, context })
+            });
+            
+            const data = await response.json();
+            
+            // Hide loading, show results
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('results-content').classList.remove('hidden');
+            
+            // Populate results
+            document.getElementById('result-scenario').textContent = scenario;
+            document.getElementById('result-agents').textContent = data.agents_count || 10;
+            document.getElementById('result-rounds').textContent = data.rounds || 2;
+            document.getElementById('result-model').textContent = data.model || 'nvidia/nemotron-3-super-120b-a12b:free';
+            
+            console.log('Simulation data:', data); // Debug log
+            
+            // Populate consensus map
+            if (data.consensus && data.consensus.action_distribution) {
+                const dist = data.consensus.action_distribution;
+                const total = (dist.BUY || 0) + (dist.HOLD || 0) + (dist.SELL || 0);
+                
+                if (total > 0) {
+                    const buyPct = Math.round((dist.BUY || 0) / total * 100);
+                    const holdPct = Math.round((dist.HOLD || 0) / total * 100);
+                    const sellPct = Math.round((dist.SELL || 0) / total * 100);
+                    
+                    const consensusContent = document.getElementById('consensus-map-content');
+                    if (consensusContent) {
+                        consensusContent.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="w-32 text-sm text-gray-400">All Agents (${total})</div>
+                                <div class="flex-1 flex space-x-1">
+                                    <div class="h-6 bg-green-600" style="width: ${buyPct}%"></div>
+                                    <div class="h-6 bg-gray-600" style="width: ${holdPct}%"></div>
+                                    <div class="h-6 bg-red-600" style="width: ${sellPct}%"></div>
+                                </div>
+                                <div class="w-32 text-right text-sm mono">${buyPct}/${holdPct}/${sellPct}%</div>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-2">
+                                BUY: ${dist.BUY || 0} agents | HOLD: ${dist.HOLD || 0} agents | SELL: ${dist.SELL || 0} agents
+                            </div>
+                        `;
+                    }
+                }
+            }
+            
+            // Populate forecast if available
+            if (data.consensus && data.consensus.forecast) {
+                const forecast = data.consensus.forecast;
+                
+                const forecastSection = document.getElementById('forecast-section');
+                if (forecastSection) {
+                    forecastSection.innerHTML = `
+                        <h3 class="text-lg font-semibold mb-4">Forecast</h3>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <div class="text-sm text-gray-400">OUSG Supply</div>
+                                <div class="text-xl font-bold text-green-400">${forecast.ousg_supply_change || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">USDY Supply</div>
+                                <div class="text-xl font-bold text-green-400">${forecast.usdy_supply_change || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">NAV Deviation</div>
+                                <div class="text-xl font-bold">${forecast.nav_deviation_forecast || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-400">Risk Level</div>
+                                <div class="text-xl font-bold ${forecast.risk_level === 'LOW' ? 'text-green-400' : forecast.risk_level === 'HIGH' ? 'text-red-400' : 'text-yellow-400'}">${forecast.risk_level || 'MEDIUM'}</div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-400 mb-2">Confidence: <span class="text-primary font-bold">${forecast.confidence || 50}%</span></div>
+                        ${forecast.summary ? `<div class="text-sm text-gray-300 mt-4">${forecast.summary}</div>` : ''}
+                    `;
+                }
+            }
+            
+            // Populate agent voices
+            if (data.round2 && data.round2.length > 0) {
+                const voicesContainer = document.getElementById('agent-voices');
+                voicesContainer.innerHTML = '';
+                
+                // Show top 5 most confident agents
+                const topAgents = data.round2
+                    .sort((a, b) => (b.confidence || 0) - (a.confidence || 0))
+                    .slice(0, 5);
+                
+                topAgents.forEach(agent => {
+                    const voiceDiv = document.createElement('div');
+                    voiceDiv.className = 'p-4 bg-gray-900 rounded-lg';
+                    voiceDiv.innerHTML = `
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="font-semibold">${agent.agent_name}</div>
+                            <div class="text-xs px-2 py-1 rounded ${
+                                agent.action === 'BUY' ? 'bg-green-900 text-green-200' :
+                                agent.action === 'SELL' ? 'bg-red-900 text-red-200' :
+                                'bg-gray-700 text-gray-300'
+                            }">${agent.action}</div>
+                        </div>
+                        <div class="text-sm text-gray-400">${agent.reasoning || 'No reasoning provided'}</div>
+                        <div class="text-xs text-gray-500 mt-2">Confidence: ${agent.confidence || 0}%</div>
+                    `;
+                    voicesContainer.appendChild(voiceDiv);
+                });
+            }
+            
+        } catch (error) {
+            alert('Simulation failed: ' + error.message);
+            document.getElementById('simulation-results').classList.add('hidden');
+        }
+    }
+    
+    // Load events from sessionStorage when tab opens
+    function loadSimulationEvents() {
+        const eventsJson = sessionStorage.getItem('simulationEvents');
+        if (eventsJson) {
+            const events = JSON.parse(eventsJson);
+            const contextInput = document.getElementById('context-input');
+            
+            if (!contextInput) return; // Tab not loaded yet
+            
+            // Build context from events
+            let eventContext = 'Recent events to consider:\n';
+            events.forEach((event, idx) => {
+                eventContext += `${idx + 1}. ${event.title}\n`;
+            });
+            
+            contextInput.value = eventContext;
+            
+            // Clear from storage after loading
+            sessionStorage.removeItem('simulationEvents');
+        }
+    }
+    
+    // Listen for custom event from Event Radar
+    window.addEventListener('eventsAdded', (e) => {
+        setTimeout(loadSimulationEvents, 100); // Small delay to ensure tab is loaded
+    });
+    
+    // Load events when page loads
+    document.addEventListener('DOMContentLoaded', loadSimulationEvents);
+    
+    // Also check when tab becomes visible
+    const observer = new MutationObserver(() => {
+        const scenarioInput = document.getElementById('scenario-input');
+        if (scenarioInput && scenarioInput.offsetParent !== null) {
+            loadSimulationEvents();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+</script>

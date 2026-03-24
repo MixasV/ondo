@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.env
+data/cache.db
+*.log
+.DS_Store
+
+# IDE
+.vscode/
+.kiro/
+
+# Deployment files (server-specific)
+deploy/
+docs/
+
+# SSL certificates
+ssl/

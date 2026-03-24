@@ -1,0 +1,597 @@
+<!-- Counters Row -->
+{% if is_updating %}
+<div class="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3 mb-4 flex items-center space-x-3">
+    <div class="animate-spin rounded-full h-4 w-4 border-2 border-yellow-500 border-t-transparent"></div>
+    <span class="text-sm text-yellow-400">Updating data in background...</span>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+    
+    <!-- TVL (Total Value Locked) -->
+    <div class="bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg p-6 border border-primary/30">
+        <div class="text-sm text-gray-400 mb-2">Total Supply</div>
+        <div class="text-3xl font-bold mono text-primary">${{ "%.1f"|format(tvl / 1000000) }}M</div>
+        <div class="text-xs text-gray-500 mt-2">OUSG + USDY combined</div>
+        <div class="text-xs text-gray-600 mt-1">Supply = TVL (1:1 backed)</div>
+    </div>
+    
+    <!-- OUSG Supply -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <div class="text-sm text-gray-400 mb-2">OUSG Supply</div>
+        <div class="text-2xl font-bold mono text-primary">${{ "%.2f"|format(ousg_supply / 1000000) }}M</div>
+        <div class="text-xs text-gray-500 mt-2">Institutional</div>
+    </div>
+    
+    <!-- USDY Supply -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <div class="text-sm text-gray-400 mb-2">USDY Supply</div>
+        <div class="text-2xl font-bold mono text-primary">${{ "%.1f"|format(usdy_supply / 1000000) }}M</div>
+        <div class="text-xs text-gray-500 mt-2">Yield-bearing</div>
+    </div>
+    
+    <!-- Unique Holders -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <div class="text-sm text-gray-400 mb-2">Holders (7d)</div>
+        <div class="text-2xl font-bold mono text-primary">{{ unique_holders }}</div>
+        <div class="text-xs text-gray-500 mt-2">Active wallets</div>
+    </div>
+    
+    <!-- APY -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <div class="text-sm text-gray-400 mb-2">Current APY</div>
+        <div class="text-2xl font-bold mono text-green-400">4.5%</div>
+        <div class="text-xs text-gray-500 mt-2">USDY yield</div>
+    </div>
+    
+    <!-- NAV Deviation -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <div class="text-sm text-gray-400 mb-2">NAV Deviation</div>
+        {% if nav_deviation > 0 %}
+        <div class="text-2xl font-bold mono text-green-400">+{{ "%.2f"|format(nav_deviation) }}%</div>
+        {% elif nav_deviation < 0 %}
+        <div class="text-2xl font-bold mono text-red-400">{{ "%.2f"|format(nav_deviation) }}%</div>
+        {% else %}
+        <div class="text-2xl font-bold mono text-gray-400">{{ "%.2f"|format(nav_deviation) }}%</div>
+        {% endif %}
+        <div class="text-xs text-gray-500 mt-2">Market vs NAV</div>
+    </div>
+    
+</div>
+
+<!-- Info Message -->
+<div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+    <p class="text-sm text-blue-200">
+        📊 Real data from Dune Analytics | OUSG: ${{ "%.1f"|format(ousg_supply / 1000000) }}M | USDY: ${{ "%.1f"|format(usdy_supply / 1000000) }}M | {{ unique_holders }} holders | NAV: {{ "%.2f"|format(nav_deviation) }}%
+    </p>
+</div>
+
+<!-- AI Market Commentary -->
+<div class="bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-lg p-6 mb-6">
+    <div class="flex items-start space-x-3">
+        <div class="text-2xl">🤖</div>
+        <div class="flex-1">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-semibold text-purple-200">AI Market Commentary</h3>
+                <button onclick="refreshCommentary()" class="text-xs px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded transition-colors">
+                    🔄 Refresh
+                </button>
+            </div>
+            <div id="ai-commentary" class="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
+                Loading AI analysis...
+            </div>
+            <div class="text-xs text-gray-500 mt-2" id="commentary-timestamp"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Supply Overview - 30% width -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <h3 class="text-lg font-semibold mb-4">Supply Overview</h3>
+        <div class="space-y-4">
+            <div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-400">OUSG (Institutional)</span>
+                    <span class="text-primary font-mono">${{ "%.2f"|format(ousg_supply / 1000000) }}M</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-3">
+                    {% set total = ousg_supply + usdy_supply %}
+                    {% if total > 0 %}
+                    <div class="bg-primary h-3 rounded-full" style="width: {{ (ousg_supply / total * 100)|round }}%"></div>
+                    {% else %}
+                    <div class="bg-primary h-3 rounded-full" style="width: 0%"></div>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-400">USDY (Retail)</span>
+                    <span class="text-amber-400 font-mono">${{ "%.2f"|format(usdy_supply / 1000000) }}M</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-3">
+                    {% set total = ousg_supply + usdy_supply %}
+                    {% if total > 0 %}
+                    <div class="bg-amber-400 h-3 rounded-full" style="width: {{ (usdy_supply / total * 100)|round }}%"></div>
+                    {% else %}
+                    <div class="bg-amber-400 h-3 rounded-full" style="width: 0%"></div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="pt-4 border-t border-gray-700">
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-400">Total TVL</span>
+                    <span class="text-xl font-bold text-primary">${{ "%.2f"|format((ousg_supply + usdy_supply) / 1000000) }}M</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">Total Holders</span>
+                    <span class="text-gray-300 font-mono">{{ unique_holders }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Whale Holders - 70% width -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800 lg:col-span-2">
+        <h3 class="text-lg font-semibold mb-4">🐋 Top Whale Holders</h3>
+        {% if whale_holders %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- USDY Whales -->
+            <div>
+                <h4 class="text-sm font-semibold text-amber-400 mb-3">USDY Top 10</h4>
+                <div class="space-y-2">
+                    {% set usdy_whales = whale_holders | selectattr('token', 'equalto', 'USDY') | list %}
+                    {% for whale in usdy_whales[:10] %}
+                    {% set whale_balance_m = whale.balance / 1000000 %}
+                    {% if whale_balance_m < 1000 %}
+                    <div class="flex items-center justify-between p-2 bg-gray-800/50 rounded border border-gray-700 hover:border-amber-400/50 cursor-pointer transition-colors" 
+                         onclick="copyAddress('{{ whale.holder }}', this)"
+                         title="{{ whale.holder }}">
+                        <div class="flex items-center space-x-2 flex-1 min-w-0">
+                            <span class="text-gray-500 text-xs flex-shrink-0">{{ loop.index }}</span>
+                            {% if whale.label %}
+                            <div class="flex flex-col flex-1 min-w-0">
+                                <span class="text-xs text-amber-400 truncate font-semibold">{{ whale.label }}</span>
+                                {% if whale.entity_type %}
+                                <span class="text-xs text-gray-500">{{ whale.entity_type }}</span>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <code class="text-xs text-amber-400 truncate">{{ whale.holder }}</code>
+                            {% endif %}
+                        </div>
+                        <span class="font-mono text-xs text-gray-300 ml-2 flex-shrink-0">${{ "%.2f"|format(whale_balance_m) }}M</span>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- OUSG Whales -->
+            <div>
+                <h4 class="text-sm font-semibold text-primary mb-3">OUSG Top 10</h4>
+                <div class="space-y-2">
+                    {% set ousg_whales = whale_holders | selectattr('token', 'equalto', 'OUSG') | list %}
+                    {% for whale in ousg_whales[:10] %}
+                    {% set whale_balance_m = whale.balance / 1000000 %}
+                    {% if whale_balance_m < 1000 %}
+                    <div class="flex items-center justify-between p-2 bg-gray-800/50 rounded border border-gray-700 hover:border-primary/50 cursor-pointer transition-colors" 
+                         onclick="copyAddress('{{ whale.holder }}', this)"
+                         title="{{ whale.holder }}">
+                        <div class="flex items-center space-x-2 flex-1 min-w-0">
+                            <span class="text-gray-500 text-xs flex-shrink-0">{{ loop.index }}</span>
+                            {% if whale.label %}
+                            <div class="flex flex-col flex-1 min-w-0">
+                                <span class="text-xs text-primary truncate font-semibold">{{ whale.label }}</span>
+                                {% if whale.entity_type %}
+                                <span class="text-xs text-gray-500">{{ whale.entity_type }}</span>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <code class="text-xs text-primary truncate">{{ whale.holder }}</code>
+                            {% endif %}
+                        </div>
+                        <span class="font-mono text-xs text-gray-300 ml-2 flex-shrink-0">${{ "%.2f"|format(whale_balance_m) }}M</span>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="h-32 flex items-center justify-center text-gray-500">
+            <p>No whale data available</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Total Holders Trend -->
+<div class="bg-dark-lighter rounded-lg p-6 border border-gray-800 mb-6">
+    <h3 class="text-lg font-semibold mb-4">👥 Total Holders Trend</h3>
+    {% if holders_trend %}
+    <canvas id="holdersTrendChart" height="100"></canvas>
+    {% else %}
+    <div class="h-48 flex items-center justify-center text-gray-500">
+        <div class="text-center">
+            <p class="mb-2">📊 No holders trend data</p>
+            <p class="text-xs">Run data update to fetch history</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Advanced Analytics Grid 2x2 -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    
+    <!-- Top 10 Concentration Ratio Chart -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <h3 class="text-lg font-semibold mb-4">📊 Top 10 Concentration Ratio</h3>
+        {% if concentration_ratio %}
+        <canvas id="concentrationChart" height="200"></canvas>
+        {% else %}
+        <div class="h-48 flex items-center justify-center text-gray-500">
+            <p>No concentration data</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Daily Active Addresses Chart -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <h3 class="text-lg font-semibold mb-4">👥 Daily Active Addresses</h3>
+        {% if daily_active %}
+        <canvas id="activeAddressesChart" height="200"></canvas>
+        {% else %}
+        <div class="h-48 flex items-center justify-center text-gray-500">
+            <p>No activity data</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Transfer Volume Trend Chart -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <h3 class="text-lg font-semibold mb-4">💰 Transfer Volume Trend</h3>
+        {% if transfer_trend %}
+        <canvas id="transferTrendChart" height="200"></canvas>
+        {% else %}
+        <div class="h-48 flex items-center justify-center text-gray-500">
+            <p>No transfer data</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Transfer Count Chart -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <h3 class="text-lg font-semibold mb-4">📈 Transfer Count Trend</h3>
+        {% if transfer_trend %}
+        <canvas id="transferCountChart" height="200"></canvas>
+        {% else %}
+        <div class="h-48 flex items-center justify-center text-gray-500">
+            <p>No transfer data</p>
+        </div>
+        {% endif %}
+    </div>
+    
+</div>
+
+<!-- Data Health Monitor -->
+<div class="bg-dark-lighter rounded-lg p-6 border border-gray-800 mt-6">
+    <h3 class="text-lg font-semibold mb-4">Data Health Monitor</h3>
+    <div id="data-health" class="space-y-2">
+        Loading health status...
+    </div>
+</div>
+
+<script>
+// Copy address to clipboard
+function copyAddress(address, element) {
+    navigator.clipboard.writeText(address).then(() => {
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-primary text-dark px-6 py-3 rounded-lg shadow-lg z-50';
+        notification.textContent = '✓ Address copied';
+        document.body.appendChild(notification);
+        element.classList.add('border-primary');
+        setTimeout(() => {
+            notification.remove();
+            element.classList.remove('border-primary');
+        }, 2000);
+    });
+}
+
+// Load AI Commentary
+async function loadCommentary(force = false) {
+    try {
+        const url = force ? '/api/commentary?force=true' : '/api/commentary';
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        // Format commentary with section highlighting
+        let formattedText = data.text;
+        
+        // Highlight section headers
+        formattedText = formattedText
+            .replace(/ANOMALIES:/g, '<span class="text-yellow-400 font-semibold">ANOMALIES:</span>')
+            .replace(/ANALYSIS:/g, '<span class="text-blue-400 font-semibold">ANALYSIS:</span>')
+            .replace(/RECOMMENDATIONS:/g, '<span class="text-green-400 font-semibold">RECOMMENDATIONS:</span>');
+        
+        // Preserve line breaks and set HTML
+        document.getElementById('ai-commentary').innerHTML = formattedText;
+        
+        const timestamp = new Date(data.generated_at).toLocaleString();
+        document.getElementById('commentary-timestamp').textContent = `Generated: ${timestamp}`;
+    } catch (error) {
+        document.getElementById('ai-commentary').textContent = 'Unable to load AI commentary';
+    }
+}
+
+// Refresh commentary manually
+function refreshCommentary() {
+    document.getElementById('ai-commentary').textContent = 'Generating new analysis...';
+    loadCommentary(true);
+}
+
+// Load Data Health
+async function loadHealth() {
+    try {
+        const response = await fetch('/api/health');
+        const data = await response.json();
+        
+        const healthHtml = Object.entries(data.sources).map(([source, health]) => {
+            const statusColors = {
+                'healthy': 'text-green-400',
+                'warning': 'text-yellow-400',
+                'stale': 'text-orange-400',
+                'critical': 'text-red-400',
+                'unknown': 'text-gray-400'
+            };
+            const statusIcons = {
+                'healthy': '✓',
+                'warning': '⚠',
+                'stale': '⏱',
+                'critical': '✗',
+                'unknown': '?'
+            };
+            
+            const color = statusColors[health.status] || 'text-gray-400';
+            const icon = statusIcons[health.status] || '?';
+            const age = health.age_seconds ? `${Math.floor(health.age_seconds / 60)}m ago` : 'N/A';
+            const latency = health.latency_ms ? `${Math.round(health.latency_ms)}ms` : 'N/A';
+            
+            return `
+                <div class="flex items-center justify-between text-sm py-2 border-b border-gray-800">
+                    <div class="flex items-center space-x-2">
+                        <span class="${color} font-bold">${icon}</span>
+                        <span class="text-gray-300">${source.replace('_', ' ')}</span>
+                    </div>
+                    <div class="flex items-center space-x-4 text-xs text-gray-500">
+                        <span>${age}</span>
+                        <span>${latency}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        document.getElementById('data-health').innerHTML = healthHtml;
+    } catch (error) {
+        document.getElementById('data-health').innerHTML = '<div class="text-red-400">Unable to load health data</div>';
+    }
+}
+
+loadCommentary();
+loadHealth();
+setInterval(loadCommentary, 60000);
+setInterval(loadHealth, 30000);
+</script>
+
+<script>
+// Initialize charts
+{% if holders_trend %}
+const holdersData = {{ holders_trend|tojson }};
+const ousgHolders = holdersData.filter(d => d.token === 'OUSG').sort((a,b) => new Date(a.day) - new Date(b.day));
+const usdyHolders = holdersData.filter(d => d.token === 'USDY').sort((a,b) => new Date(a.day) - new Date(b.day));
+const holdersCtx = document.getElementById('holdersTrendChart').getContext('2d');
+new Chart(holdersCtx, {
+    type: 'line',
+    data: {
+        labels: ousgHolders.length > 0 ? ousgHolders.map(d => d.day.substring(0, 10)) : usdyHolders.map(d => d.day.substring(0, 10)),
+        datasets: [
+            {
+                label: 'OUSG Holders',
+                data: ousgHolders.map(d => d.total_holders),
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                tension: 0.4,
+                fill: true,
+                hidden: ousgHolders.length === 0
+            },
+            {
+                label: 'USDY Holders',
+                data: usdyHolders.map(d => d.total_holders),
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                tension: 0.4,
+                fill: true,
+                hidden: usdyHolders.length === 0
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { color: '#9ca3af' } } },
+        scales: {
+            y: { beginAtZero: true, ticks: { color: '#9ca3af' } },
+            x: { ticks: { color: '#9ca3af', maxTicksLimit: 10 } }
+        }
+    }
+});
+{% endif %}
+
+{% if concentration_ratio %}
+const concentrationData = {{ concentration_ratio|tojson }};
+const ousgConc = concentrationData.filter(d => d.token === 'OUSG').sort((a,b) => new Date(a.day) - new Date(b.day));
+const usdyConc = concentrationData.filter(d => d.token === 'USDY').sort((a,b) => new Date(a.day) - new Date(b.day));
+const concCtx = document.getElementById('concentrationChart').getContext('2d');
+new Chart(concCtx, {
+    type: 'line',
+    data: {
+        labels: ousgConc.length > 0 ? ousgConc.map(d => d.day.substring(0, 10)) : usdyConc.map(d => d.day.substring(0, 10)),
+        datasets: [
+            {
+                label: 'OUSG Top 10%',
+                data: ousgConc.map(d => d.concentration_percent),
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                tension: 0.4,
+                hidden: ousgConc.length === 0
+            },
+            {
+                label: 'USDY Top 10%',
+                data: usdyConc.map(d => d.concentration_percent),
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                tension: 0.4,
+                hidden: usdyConc.length === 0
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { color: '#9ca3af' } } },
+        scales: {
+            y: { beginAtZero: true, max: 100, ticks: { color: '#9ca3af' } },
+            x: { ticks: { color: '#9ca3af', maxTicksLimit: 7 } }
+        }
+    }
+});
+{% endif %}
+
+{% if daily_active %}
+const activeData = {{ daily_active|tojson }};
+const ousgActive = activeData.filter(d => d.token === 'OUSG').sort((a,b) => new Date(a.day) - new Date(b.day));
+const usdyActive = activeData.filter(d => d.token === 'USDY').sort((a,b) => new Date(a.day) - new Date(b.day));
+const activeCtx = document.getElementById('activeAddressesChart').getContext('2d');
+new Chart(activeCtx, {
+    type: 'bar',
+    data: {
+        labels: ousgActive.length > 0 ? ousgActive.map(d => d.day.substring(0, 10)) : usdyActive.map(d => d.day.substring(0, 10)),
+        datasets: [
+            {
+                label: 'OUSG',
+                data: ousgActive.map(d => d.active_addresses),
+                backgroundColor: '#00d4ff',
+                hidden: ousgActive.length === 0
+            },
+            {
+                label: 'USDY',
+                data: usdyActive.map(d => d.active_addresses),
+                backgroundColor: '#f59e0b',
+                hidden: usdyActive.length === 0
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { color: '#9ca3af' } } },
+        scales: {
+            y: { beginAtZero: true, ticks: { color: '#9ca3af' } },
+            x: { ticks: { color: '#9ca3af', maxTicksLimit: 7 } }
+        }
+    }
+});
+{% endif %}
+
+{% if transfer_trend %}
+const trendData = {{ transfer_trend|tojson }};
+const ousgTrend = trendData.filter(d => d.token === 'OUSG').sort((a,b) => new Date(a.day) - new Date(b.day));
+const usdyTrend = trendData.filter(d => d.token === 'USDY').sort((a,b) => new Date(a.day) - new Date(b.day));
+
+// Transfer Volume Chart (in tokens)
+const trendCtx = document.getElementById('transferTrendChart').getContext('2d');
+new Chart(trendCtx, {
+    type: 'line',
+    data: {
+        labels: ousgTrend.length > 0 ? ousgTrend.map(d => d.day.substring(0, 10)) : usdyTrend.map(d => d.day.substring(0, 10)),
+        datasets: [
+            {
+                label: 'OUSG Volume',
+                data: ousgTrend.map(d => d.volume / 1000000),
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                tension: 0.4,
+                hidden: ousgTrend.length === 0
+            },
+            {
+                label: 'USDY Volume',
+                data: usdyTrend.map(d => d.volume / 1000000),
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                tension: 0.4,
+                hidden: usdyTrend.length === 0
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            legend: { display: true, labels: { color: '#9ca3af' } },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': $' + context.parsed.y.toFixed(2) + 'M';
+                    }
+                }
+            }
+        },
+        scales: {
+            y: { 
+                beginAtZero: true, 
+                ticks: { 
+                    color: '#9ca3af',
+                    callback: function(value) {
+                        return '$' + value + 'M';
+                    }
+                } 
+            },
+            x: { ticks: { color: '#9ca3af', maxTicksLimit: 10 } }
+        }
+    }
+});
+
+// Transfer Count Chart
+const countCtx = document.getElementById('transferCountChart').getContext('2d');
+new Chart(countCtx, {
+    type: 'bar',
+    data: {
+        labels: ousgTrend.length > 0 ? ousgTrend.map(d => d.day.substring(0, 10)) : usdyTrend.map(d => d.day.substring(0, 10)),
+        datasets: [
+            {
+                label: 'OUSG Transfers',
+                data: ousgTrend.map(d => d.transfer_count),
+                backgroundColor: '#00d4ff',
+                hidden: ousgTrend.length === 0
+            },
+            {
+                label: 'USDY Transfers',
+                data: usdyTrend.map(d => d.transfer_count),
+                backgroundColor: '#f59e0b',
+                hidden: usdyTrend.length === 0
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { color: '#9ca3af' } } },
+        scales: {
+            y: { beginAtZero: true, ticks: { color: '#9ca3af' } },
+            x: { ticks: { color: '#9ca3af', maxTicksLimit: 10 } }
+        }
+    }
+});
+{% endif %}
+</script>

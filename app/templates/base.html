@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sirex RWA Dashboard{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00d4aa',
+                        dark: '#0f1117',
+                        'dark-lighter': '#1a1d29'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    
+    <!-- Leaflet.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/custom.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f1117;
+            color: #e5e7eb;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="bg-dark text-gray-200">
+    
+    <!-- Header -->
+    <header class="bg-dark-lighter border-b border-gray-800">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-primary">Sirex RWA Dashboard</h1>
+                    <p class="text-sm text-gray-400">Ondo Finance Alpha Tracker</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div class="text-sm text-gray-400">Last Update</div>
+                        <div class="mono text-primary" id="last-update">--:--:--</div>
+                    </div>
+                    <button 
+                        id="manual-update-btn"
+                        onclick="triggerManualUpdate()"
+                        class="px-4 py-2 bg-primary text-dark font-semibold rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <span id="update-btn-text">Manual Update</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Progress Bar -->
+    <div id="update-progress-bar" class="hidden bg-dark-lighter border-b border-gray-800">
+        <div class="container mx-auto px-6 py-3">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-gray-400" id="progress-stage">Updating data...</span>
+                <span class="text-sm text-primary mono" id="progress-text">0/12</span>
+            </div>
+            <div class="w-full bg-gray-800 rounded-full h-2">
+                <div id="progress-fill" class="bg-primary h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-dark-lighter border-t border-gray-800 mt-12">
+        <div class="container mx-auto px-6 py-4 text-center text-sm text-gray-500">
+            <p>Built for Sirex Ventures | Data: Dune Analytics, GDELT, Arkham</p>
+        </div>
+    </footer>
+    
+    <!-- Custom JS -->
+    <script src="/static/js/charts.js"></script>
+    
+    <script>
+        // Update timestamp from server
+        async function updateTimestamp() {
+            try {
+                const response = await fetch('/api/metrics');
+                const data = await response.json();
+                if (data.timestamp) {
+                    const updateTime = new Date(data.timestamp);
+                    const now = new Date();
+                    const diffMs = now - updateTime;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    
+                    console.log('Update time:', updateTime.toISOString());
+                    console.log('Current time:', now.toISOString());
+                    console.log('Diff minutes:', diffMins);
+                    
+                    if (diffMins < 1) {
+                        document.getElementById('last-update').textContent = 'Just now';
+                    } else if (diffMins < 60) {
+                        document.getElementById('last-update').textContent = `${diffMins}m ago`;
+                    } else {
+                        const diffHours = Math.floor(diffMins / 60);
+                        document.getElementById('last-update').textContent = `${diffHours}h ago`;
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to update timestamp:', e);
+            }
+        }
+        updateTimestamp();
+        setInterval(updateTimestamp, 30000); // Update every 30 seconds
+        
+        // Manual update functionality
+        let updateCheckInterval = null;
+        
+        async function triggerManualUpdate() {
+            const btn = document.getElementById('manual-update-btn');
+            const btnText = document.getElementById('update-btn-text');
+            const progressBar = document.getElementById('update-progress-bar');
+            
+            try {
+                // Disable button
+                btn.disabled = true;
+                btnText.textContent = 'Updating...';
+                progressBar.classList.remove('hidden');
+                
+                // Trigger update
+                const response = await fetch('/api/update', { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.status === 'already_updating') {
+                    alert('Update already in progress');
+                    return;
+                }
+                
+                // Start checking progress
+                updateCheckInterval = setInterval(checkUpdateProgress, 1000);
+                
+            } catch (e) {
+                console.error('Failed to trigger update:', e);
+                alert('Failed to start update');
+                btn.disabled = false;
+                btnText.textContent = 'Manual Update';
+                progressBar.classList.add('hidden');
+            }
+        }
+        
+        async function checkUpdateProgress() {
+            try {
+                const response = await fetch('/api/update/status');
+                const status = await response.json();
+                
+                if (status.progress) {
+                    const { current, total, stage } = status.progress;
+                    const percentage = (current / total) * 100;
+                    
+                    document.getElementById('progress-fill').style.width = `${percentage}%`;
+                    document.getElementById('progress-text').textContent = `${current}/${total}`;
+                    document.getElementById('progress-stage').textContent = stage;
+                }
+                
+                if (!status.is_updating) {
+                    // Update complete
+                    clearInterval(updateCheckInterval);
+                    updateCheckInterval = null;
+                    
+                    const btn = document.getElementById('manual-update-btn');
+                    const btnText = document.getElementById('update-btn-text');
+                    const progressBar = document.getElementById('update-progress-bar');
+                    
+                    btn.disabled = false;
+                    btnText.textContent = 'Manual Update';
+                    
+                    // Hide progress bar after a delay
+                    setTimeout(() => {
+                        progressBar.classList.add('hidden');
+                    }, 2000);
+                    
+                    // Refresh timestamp and reload page data
+                    updateTimestamp();
+                    location.reload();
+                }
+            } catch (e) {
+                console.error('Failed to check update progress:', e);
+            }
+        }
+        
+        // Check if update is already in progress on page load
+        (async function() {
+            const response = await fetch('/api/update/status');
+            const status = await response.json();
+            
+            if (status.is_updating) {
+                const btn = document.getElementById('manual-update-btn');
+                const btnText = document.getElementById('update-btn-text');
+                const progressBar = document.getElementById('update-progress-bar');
+                
+                btn.disabled = true;
+                btnText.textContent = 'Updating...';
+                progressBar.classList.remove('hidden');
+                
+                updateCheckInterval = setInterval(checkUpdateProgress, 1000);
+            }
+        })();
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

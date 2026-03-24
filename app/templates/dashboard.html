@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Tab Navigation -->
+<div class="mb-8">
+    <div class="border-b border-gray-800">
+        <nav class="flex space-x-8">
+            <button onclick="switchTab('pulse')" id="tab-pulse" 
+                    class="tab-btn py-4 px-2 border-b-2 border-primary text-primary font-medium">
+                Ondo Pulse
+            </button>
+            <button onclick="switchTab('radar')" id="tab-radar" 
+                    class="tab-btn py-4 px-2 border-b-2 border-transparent text-gray-400 hover:text-gray-200">
+                Event Radar
+            </button>
+            <button onclick="switchTab('lab')" id="tab-lab" 
+                    class="tab-btn py-4 px-2 border-b-2 border-transparent text-gray-400 hover:text-gray-200">
+                Scenario Lab
+            </button>
+        </nav>
+    </div>
+</div>
+
+<!-- Tab Panels -->
+<div id="panel-pulse" class="tab-panel">
+    <div hx-get="/partials/metrics" hx-trigger="load" hx-swap="innerHTML">
+        Loading metrics...
+    </div>
+</div>
+
+<div id="panel-radar" class="tab-panel hidden">
+    <div hx-get="/partials/events" hx-trigger="load" hx-swap="innerHTML">
+        Loading events...
+    </div>
+</div>
+
+<div id="panel-lab" class="tab-panel hidden">
+    {% include "partials/simulation.html" %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function switchTab(tabName) {
+        // Hide all panels
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.add('hidden');
+        });
+        
+        // Reset all tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('border-primary', 'text-primary');
+            btn.classList.add('border-transparent', 'text-gray-400');
+        });
+        
+        // Show selected panel
+        document.getElementById('panel-' + tabName).classList.remove('hidden');
+        
+        // Highlight selected tab
+        const activeTab = document.getElementById('tab-' + tabName);
+        activeTab.classList.remove('border-transparent', 'text-gray-400');
+        activeTab.classList.add('border-primary', 'text-primary');
+    }
+</script>
+{% endblock %}

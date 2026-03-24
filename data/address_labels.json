@@ -1,0 +1,450 @@
+{
+  "0x5041ed759dd4afc3a72b8192c143f72f4724081a": {
+    "address": "0x5041ed759Dd4aFc3a72b8192C143F72f4724081A",
+    "label": "OKX",
+    "entity_type": "cex",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T15:59:33.496334",
+    "original_address": "0x5041ed759Dd4aFc3a72b8192C143F72f4724081A"
+  },
+  "0x1b19c19393e2d034d8ff31ff34c81252fcbbee92": {
+    "address": "0x1B19C19393e2d034D8Ff31ff34c81252FcBbee92",
+    "label": "Ondo Finance",
+    "entity_type": "misc",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T15:59:34.128192",
+    "original_address": "0x1B19C19393e2d034D8Ff31ff34c81252FcBbee92"
+  },
+  "0x96f6ef951840721adbf46ac996b59e0235cb985c": {
+    "address": "0x96F6eF951840721AdBF46Ac996b59E0235CB985C",
+    "label": "Ondo Finance",
+    "entity_type": "misc",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T15:59:35.136538",
+    "original_address": "0x96F6eF951840721AdBF46Ac996b59E0235CB985C"
+  },
+  "0x40ec5b33f54e0e8a33a975908c5ba1c14e5bbbdf": {
+    "address": "0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf",
+    "label": "Polygon",
+    "entity_type": "smart-contract-platform",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:04:39.352690",
+    "original_address": "0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf"
+  },
+  "0x61ba2aeb34def1ad2cefd2a5fb81bb4300eef851": {
+    "address": "0x61ba2aeb34def1ad2cefd2a5fb81bb4300eef851",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:41.543128",
+    "original_address": "0x61ba2aeb34def1ad2cefd2a5fb81bb4300eef851"
+  },
+  "0xa1b40f6b5c590de820bbdca10ae8359ba7e33d60": {
+    "address": "0xa1b40f6b5c590de820bbdca10ae8359ba7e33d60",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:42.804931",
+    "original_address": "0xa1b40f6b5c590de820bbdca10ae8359ba7e33d60"
+  },
+  "0x74ddb3681f903644aec6bba3914a158e5152c922": {
+    "address": "0x74ddb3681f903644aec6bba3914a158e5152c922",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:44.017189",
+    "original_address": "0x74ddb3681f903644aec6bba3914a158e5152c922"
+  },
+  "0x04f8866ef39ea8b98e772e77de5fade8e25c4523": {
+    "address": "0x04f8866ef39ea8b98e772e77de5fade8e25c4523",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:45.148166",
+    "original_address": "0x04f8866ef39ea8b98e772e77de5fade8e25c4523"
+  },
+  "0xa9b4768a8df3727acc81b5a6834a62fce9d3525c": {
+    "address": "0xa9b4768a8df3727acc81b5a6834a62fce9d3525c",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:46.303771",
+    "original_address": "0xa9b4768a8df3727acc81b5a6834a62fce9d3525c"
+  },
+  "0x13134b8d770907ecb263cb88a67f9af833007afc": {
+    "address": "0x13134b8d770907ecb263cb88a67f9af833007afc",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:47.485299",
+    "original_address": "0x13134b8d770907ecb263cb88a67f9af833007afc"
+  },
+  "0xaf37c1167910ebc994e266949387d2c7c326b879": {
+    "address": "0xaf37c1167910ebc994e266949387d2c7c326b879",
+    "label": "Ondo Finance",
+    "entity_type": "misc",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:48.642053",
+    "original_address": "0xaf37c1167910ebc994e266949387d2c7c326b879"
+  },
+  "0xc392749b6ff2cd95e5a4e3ed396c93f813395041": {
+    "address": "0xc392749b6ff2cd95e5a4e3ed396c93f813395041",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:49.891797",
+    "original_address": "0xc392749b6ff2cd95e5a4e3ed396c93f813395041"
+  },
+  "0x6870289efc708e41a97ad5068a9f84b0dd2bfaed": {
+    "address": "0x6870289efc708e41a97ad5068a9f84b0dd2bfaed",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:50.995509",
+    "original_address": "0x6870289efc708e41a97ad5068a9f84b0dd2bfaed"
+  },
+  "0xf396d2c13852c061ecad19d65b6df0a8ce6a4a56": {
+    "address": "0xf396d2c13852c061ecad19d65b6df0a8ce6a4a56",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:52.145531",
+    "original_address": "0xf396d2c13852c061ecad19d65b6df0a8ce6a4a56"
+  },
+  "0x661b5e00424b56ba6e369e0c2f21e31b6fb8ee1a": {
+    "address": "0x661b5e00424b56ba6e369e0c2f21e31b6fb8ee1a",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:53.213304",
+    "original_address": "0x661b5e00424b56ba6e369e0c2f21e31b6fb8ee1a"
+  },
+  "0x2c0e42e2386aaa145799202f56387b7c8c72b2e8": {
+    "address": "0x2c0e42e2386aaa145799202f56387b7c8c72b2e8",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:54.321278",
+    "original_address": "0x2c0e42e2386aaa145799202f56387b7c8c72b2e8"
+  },
+  "0x1dd7950c266fb1be96180a8fdb0591f70200e018": {
+    "address": "0x1dd7950c266fb1be96180a8fdb0591f70200e018",
+    "label": "Flux Finance",
+    "entity_type": "lending-decentralized",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:55.419762",
+    "original_address": "0x1dd7950c266fb1be96180a8fdb0591f70200e018"
+  },
+  "0x0b07ccdd68c8332ccf8f15fef0480cca6ff66238": {
+    "address": "0x0b07ccdd68c8332ccf8f15fef0480cca6ff66238",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:56.550939",
+    "original_address": "0x0b07ccdd68c8332ccf8f15fef0480cca6ff66238"
+  },
+  "0xc9e397454f5478f4418e45181849c6ea66303d5a": {
+    "address": "0xc9e397454f5478f4418e45181849c6ea66303d5a",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:57.697298",
+    "original_address": "0xc9e397454f5478f4418e45181849c6ea66303d5a"
+  },
+  "0xc0db94fdde74f3902ea7995194d290f6bee78f8c": {
+    "address": "0xc0db94fdde74f3902ea7995194d290f6bee78f8c",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:08:58.877811",
+    "original_address": "0xc0db94fdde74f3902ea7995194d290f6bee78f8c"
+  },
+  "0xa5b614026dcb1ef6e0e39aa53351b4f4bd225302": {
+    "address": "0xa5b614026dcb1ef6e0e39aa53351b4f4bd225302",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:09:00.005184",
+    "original_address": "0xa5b614026dcb1ef6e0e39aa53351b4f4bd225302"
+  },
+  "0x5392ecbb807c641fe33900b2441d18807beb5c82": {
+    "address": "0x5392ecbb807c641fe33900b2441d18807beb5c82",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:09:01.198378",
+    "original_address": "0x5392ecbb807c641fe33900b2441d18807beb5c82"
+  },
+  "0xf50089f89ec40f9b62ddeffa7635f8c760ed65c4": {
+    "address": "0xf50089f89ec40f9b62ddeffa7635f8c760ed65c4",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:09:02.320064",
+    "original_address": "0xf50089f89ec40f9b62ddeffa7635f8c760ed65c4"
+  },
+  "0x9c6fa3b81ce92b7d82980d68ccce9d6e48fe4ac2": {
+    "address": "0x9c6fa3b81ce92b7d82980d68ccce9d6e48fe4ac2",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:09:03.501170",
+    "original_address": "0x9c6fa3b81ce92b7d82980d68ccce9d6e48fe4ac2"
+  },
+  "0x239b9c1f24f3423062b0d364796e07ee905e9fce": {
+    "address": "0x239b9C1F24F3423062B0d364796e07Ee905E9FcE",
+    "label": "Universal",
+    "entity_type": "blockchain-infra",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:36:04.868828",
+    "original_address": "0x239b9C1F24F3423062B0d364796e07Ee905E9FcE"
+  },
+  "0x74d6a797ed3511137e9b3eb080930e49ef59196a": {
+    "address": "0x74d6a797ED3511137e9b3eb080930e49ef59196a",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:37:10.929114",
+    "original_address": "0x74d6a797ED3511137e9b3eb080930e49ef59196a"
+  },
+  "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270": {
+    "address": "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+    "label": "Polygon",
+    "entity_type": "smart-contract-platform",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:37:11.949629",
+    "original_address": "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"
+  },
+  "0x8129b737912e17212c8693b781928f5d0303390a": {
+    "address": "0x8129b737912e17212C8693B781928f5D0303390a",
+    "label": "dYdX",
+    "entity_type": "derivatives",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:37:12.986302",
+    "original_address": "0x8129b737912e17212C8693B781928f5D0303390a"
+  },
+  "0x2791bca1f2de4661ed88a30c99a7a9449aa84174": {
+    "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+    "label": "Polygon",
+    "entity_type": "smart-contract-platform",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:37:14.124015",
+    "original_address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+  },
+  "0x23beeb22e6f7a0cf487c08078f12606162b663cb": {
+    "address": "0x23beeb22e6f7a0cf487c08078f12606162b663cb",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:28.024822",
+    "original_address": "0x23beeb22e6f7a0cf487c08078f12606162b663cb"
+  },
+  "0x57a99eaca6c4d922b061c73cc0b87dac0b244e54": {
+    "address": "0x57a99eaca6c4d922b061c73cc0b87dac0b244e54",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:29.169887",
+    "original_address": "0x57a99eaca6c4d922b061c73cc0b87dac0b244e54"
+  },
+  "0x005174851851045d9e00eda1902fdb24b0d0ee60": {
+    "address": "0x005174851851045d9e00eda1902fdb24b0d0ee60",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:30.301434",
+    "original_address": "0x005174851851045d9e00eda1902fdb24b0d0ee60"
+  },
+  "0x9da0ab5d7f95a8d0295e8e2967403c8dbbbeaf94": {
+    "address": "0x9da0ab5d7f95a8d0295e8e2967403c8dbbbeaf94",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:31.344461",
+    "original_address": "0x9da0ab5d7f95a8d0295e8e2967403c8dbbbeaf94"
+  },
+  "0x63242a4ea82847b20e506b63b0e2e2eff0cc6cb0": {
+    "address": "0x63242a4ea82847b20e506b63b0e2e2eff0cc6cb0",
+    "label": "Kyber Network",
+    "entity_type": "dex",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:32.413303",
+    "original_address": "0x63242a4ea82847b20e506b63b0e2e2eff0cc6cb0"
+  },
+  "0x404c2ed30750c9d6342c51857453b61fc5b327ea": {
+    "address": "0x404c2ed30750c9d6342c51857453b61fc5b327ea",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:33.625787",
+    "original_address": "0x404c2ed30750c9d6342c51857453b61fc5b327ea"
+  },
+  "0x9008d19f58aabd9ed0d60971565aa8510560ab41": {
+    "address": "0x9008d19f58aabd9ed0d60971565aa8510560ab41",
+    "label": "CoW Protocol",
+    "entity_type": "dex-aggregator",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:34.688603",
+    "original_address": "0x9008d19f58aabd9ed0d60971565aa8510560ab41"
+  },
+  "0xad26bddc039f0e19d80640d56c53b8c921f1a9d2": {
+    "address": "0xad26bddc039f0e19d80640d56c53b8c921f1a9d2",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:35.783692",
+    "original_address": "0xad26bddc039f0e19d80640d56c53b8c921f1a9d2"
+  },
+  "0xfb2454d5b5c55914c8728986715e22e0b5428d17": {
+    "address": "0xfb2454d5b5c55914c8728986715e22e0b5428d17",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:36.904101",
+    "original_address": "0xfb2454d5b5c55914c8728986715e22e0b5428d17"
+  },
+  "0x505ff4462ba5e62ed529fa836d768ecd7b85439c": {
+    "address": "0x505ff4462ba5e62ed529fa836d768ecd7b85439c",
+    "label": "Gnosis Safe Proxy",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:37.988909",
+    "original_address": "0x505ff4462ba5e62ed529fa836d768ecd7b85439c"
+  },
+  "0x5fde70b9ceab4da795c05fdabf9b1070d27b3575": {
+    "address": "0x5fde70b9ceab4da795c05fdabf9b1070d27b3575",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:39.061903",
+    "original_address": "0x5fde70b9ceab4da795c05fdabf9b1070d27b3575"
+  },
+  "0x33071af7721da351a7ee6832f2a131a54fbb27b0": {
+    "address": "0x33071af7721da351a7ee6832f2a131a54fbb27b0",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:40.210790",
+    "original_address": "0x33071af7721da351a7ee6832f2a131a54fbb27b0"
+  },
+  "0x320031e30eb136549832b1fe42348ecd9dce90ff": {
+    "address": "0x320031e30eb136549832b1fe42348ecd9dce90ff",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:41.306452",
+    "original_address": "0x320031e30eb136549832b1fe42348ecd9dce90ff"
+  },
+  "0x1231deb6f5749ef6ce6943a275a1d3e7486f4eae": {
+    "address": "0x1231deb6f5749ef6ce6943a275a1d3e7486f4eae",
+    "label": "LiFi",
+    "entity_type": "dex-aggregator",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:42.417293",
+    "original_address": "0x1231deb6f5749ef6ce6943a275a1d3e7486f4eae"
+  },
+  "0xa42613c243b67bf6194ac327795b926b4b491f15": {
+    "address": "0xa42613c243b67bf6194ac327795b926b4b491f15",
+    "label": "Ondo Finance",
+    "entity_type": "misc",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:43.631121",
+    "original_address": "0xa42613c243b67bf6194ac327795b926b4b491f15"
+  },
+  "0xc6aedfc4581ad7473df388aed8e8bcb0f41e6e6d": {
+    "address": "0xc6aedfc4581ad7473df388aed8e8bcb0f41e6e6d",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:44.753677",
+    "original_address": "0xc6aedfc4581ad7473df388aed8e8bcb0f41e6e6d"
+  },
+  "0x89c6340b1a1f4b25d36cd8b063d49045caf3f818": {
+    "address": "0x89c6340b1a1f4b25d36cd8b063d49045caf3f818",
+    "label": "LiFi",
+    "entity_type": "dex-aggregator",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:45.851773",
+    "original_address": "0x89c6340b1a1f4b25d36cd8b063d49045caf3f818"
+  },
+  "0xf4bfb03db1e6964943f216a61188bbc0290e916e": {
+    "address": "0xf4bfb03db1e6964943f216a61188bbc0290e916e",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:46.927415",
+    "original_address": "0xf4bfb03db1e6964943f216a61188bbc0290e916e"
+  },
+  "0xf89d7b9c864f589bbf53a82105107622b35eaa40": {
+    "address": "0xf89d7b9c864f589bbf53a82105107622b35eaa40",
+    "label": "Bybit",
+    "entity_type": "cex",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:48.091811",
+    "original_address": "0xf89d7b9c864f589bbf53a82105107622b35eaa40"
+  },
+  "0xbf93d7b57dea2d1651d11b36bba445d5f924b9ec": {
+    "address": "0xbf93d7b57dea2d1651d11b36bba445d5f924b9ec",
+    "label": "Bybit Deposit",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T16:51:49.195754",
+    "original_address": "0xbf93d7b57dea2d1651d11b36bba445d5f924b9ec"
+  },
+  "0x08c9d46f3ceee3cdd2bdf570592fb4fb9541584f": {
+    "address": "0x08c9d46f3ceee3cdd2bdf570592fb4fb9541584f",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T17:11:51.657603",
+    "original_address": "0x08c9d46f3ceee3cdd2bdf570592fb4fb9541584f"
+  },
+  "0x9883fe9423860936f8f72bdb8e6e43b7c1b8e2b4": {
+    "address": "0x9883fe9423860936f8f72bdb8e6e43b7c1b8e2b4",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T17:11:52.936545",
+    "original_address": "0x9883fe9423860936f8f72bdb8e6e43b7c1b8e2b4"
+  },
+  "0x72be8c14b7564f7a61ba2f6b7e50d18dc1d4b63d": {
+    "address": "0x72be8c14b7564f7a61ba2f6b7e50d18dc1d4b63d",
+    "label": "Ondo Finance",
+    "entity_type": "misc",
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T17:11:54.180634",
+    "original_address": "0x72be8c14b7564f7a61ba2f6b7e50d18dc1d4b63d"
+  },
+  "0x0e3c386d56b8867b94f8dd1bde8e5a5f6de5d441": {
+    "address": "0x0e3c386d56b8867b94f8dd1bde8e5a5f6de5d441",
+    "label": "Bybit Deposit",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T17:11:55.425197",
+    "original_address": "0x0e3c386d56b8867b94f8dd1bde8e5a5f6de5d441"
+  },
+  "0x18be9fc7898a6e7759225351028437f6bf68e739": {
+    "address": "0x18be9fc7898a6e7759225351028437f6bf68e739",
+    "label": "3711.eth",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T17:11:56.680649",
+    "original_address": "0x18be9fc7898a6e7759225351028437f6bf68e739"
+  },
+  "0x0000000000000000000000000000000000000000": {
+    "address": "0x0000000000000000000000000000000000000000",
+    "label": "Null Address",
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T17:11:57.860524",
+    "original_address": "0x0000000000000000000000000000000000000000"
+  },
+  "0x2a6f75e23b8c534f5733038016316a83dbb86a16": {
+    "address": "0x2a6f75e23b8c534f5733038016316a83dbb86a16",
+    "label": null,
+    "entity_type": null,
+    "chain": "ethereum",
+    "cached_at": "2026-03-23T17:11:59.166718",
+    "original_address": "0x2a6f75e23b8c534f5733038016316a83dbb86a16"
+  }
+}

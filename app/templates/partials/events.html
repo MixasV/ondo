@@ -1,0 +1,133 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    
+    <!-- Stress Indicator -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <div class="text-sm text-gray-400 mb-2">Market Stress Level</div>
+        <div class="flex items-center space-x-3">
+            {% if stress_level == "LOW" %}
+            <div class="w-4 h-4 rounded-full bg-green-500"></div>
+            <div class="text-2xl font-bold text-green-400">LOW</div>
+            {% elif stress_level == "MEDIUM" %}
+            <div class="w-4 h-4 rounded-full bg-yellow-500"></div>
+            <div class="text-2xl font-bold text-yellow-400">MEDIUM</div>
+            {% else %}
+            <div class="w-4 h-4 rounded-full bg-red-500"></div>
+            <div class="text-2xl font-bold text-red-400">HIGH</div>
+            {% endif %}
+        </div>
+        <div class="text-xs text-gray-500 mt-2">Based on 24h event analysis</div>
+    </div>
+    
+    <!-- Event Count -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <div class="text-sm text-gray-400 mb-2">Events (24h)</div>
+        <div class="text-3xl font-bold mono text-primary">{{ event_count }}</div>
+        <div class="text-xs text-gray-500 mt-2">Relevant to RWA/Treasuries</div>
+    </div>
+    
+    <!-- Data Source -->
+    <div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+        <div class="text-sm text-gray-400 mb-2">Data Source</div>
+        <div class="text-xl font-bold">GDELT Project</div>
+        <div class="text-xs text-gray-500 mt-2">Global event monitoring</div>
+    </div>
+    
+</div>
+
+<!-- Event Feed -->
+<div class="bg-dark-lighter rounded-lg p-6 border border-gray-800">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold">Event Feed (Last 24h)</h3>
+        <div class="flex items-center space-x-3">
+            <span class="text-xs text-gray-500" id="selected-count">0 selected</span>
+            <button onclick="addToSimulation()" 
+                    class="px-4 py-2 bg-primary hover:bg-teal-600 text-dark text-sm font-semibold rounded transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    id="add-to-sim-btn"
+                    disabled>
+                Add to Simulation
+            </button>
+        </div>
+    </div>
+    
+    {% if events %}
+    <div class="space-y-4 max-h-96 overflow-y-auto">
+        {% for event in events %}
+        <div class="border-l-4 {% if 'FED' in event.tags %}border-blue-500{% elif 'REG' in event.tags %}border-orange-500{% elif 'GEO' in event.tags %}border-red-500{% else %}border-green-500{% endif %} pl-4 py-2 hover:bg-gray-800/50 rounded transition cursor-pointer event-item"
+             data-event-id="{{ event.id }}"
+             data-event-title="{{ event.title }}"
+             onclick="toggleEventSelection(this)">
+            <div class="flex items-start justify-between mb-1">
+                <div class="flex space-x-2 items-center">
+                    <input type="checkbox" class="event-checkbox" onclick="event.stopPropagation()">
+                    {% for tag in event.tags|from_json %}
+                    <span class="px-2 py-0.5 {% if tag == 'FED' %}bg-blue-900 text-blue-200{% elif tag == 'REG' %}bg-orange-900 text-orange-200{% elif tag == 'GEO' %}bg-red-900 text-red-200{% else %}bg-green-900 text-green-200{% endif %} rounded text-xs">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                <span class="text-xs text-gray-500">{{ event.published_at[:10] }}</span>
+            </div>
+            <h4 class="text-sm font-medium mb-1">{{ event.title }}</h4>
+            <p class="text-xs text-gray-400 mb-2">Source: {{ event.source }}</p>
+            <div class="flex space-x-3 text-xs">
+                {% if event.url %}
+                <a href="{{ event.url }}" target="_blank" class="text-primary hover:underline" onclick="event.stopPropagation()">View Source</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 text-gray-500">
+        <p class="mb-2">📡 No events loaded</p>
+        <p class="text-sm">Run <code class="bg-gray-800 px-2 py-1 rounded">python cron/update_data.py</code> to fetch events</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+let selectedEvents = [];
+
+function toggleEventSelection(element) {
+    const checkbox = element.querySelector('.event-checkbox');
+    checkbox.checked = !checkbox.checked;
+    
+    const eventId = element.dataset.eventId;
+    const eventTitle = element.dataset.eventTitle;
+    
+    if (checkbox.checked) {
+        element.classList.add('bg-primary/10', 'border-primary');
+        selectedEvents.push({ id: eventId, title: eventTitle });
+    } else {
+        element.classList.remove('bg-primary/10', 'border-primary');
+        selectedEvents = selectedEvents.filter(e => e.id !== eventId);
+    }
+    
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const count = selectedEvents.length;
+    document.getElementById('selected-count').textContent = `${count} selected`;
+    document.getElementById('add-to-sim-btn').disabled = count === 0;
+}
+
+function addToSimulation() {
+    if (selectedEvents.length === 0) return;
+    
+    // Store selected events in sessionStorage
+    sessionStorage.setItem('simulationEvents', JSON.stringify(selectedEvents));
+    
+    // Switch to Scenario Lab tab
+    switchTab('lab');
+    
+    // Show notification
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-4 right-4 bg-primary text-dark px-6 py-3 rounded-lg shadow-lg z-50';
+    notification.textContent = `✓ ${selectedEvents.length} event(s) added to simulation context`;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.remove(), 3000);
+    
+    // Trigger event for Scenario Lab to load events
+    window.dispatchEvent(new CustomEvent('eventsAdded', { detail: selectedEvents }));
+}
+</script>
