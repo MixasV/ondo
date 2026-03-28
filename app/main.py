@@ -93,283 +93,288 @@ async def periodic_update_task():
         await asyncio.sleep(3600)
 
 
-# Flag to prevent multiple simultaneous updates
-_update_in_progress = False
+# Lock to prevent multiple simultaneous updates
+_update_lock = asyncio.Lock()
 
 
 async def update_all_data():
     """Update all metrics and events from APIs"""
-    global _update_in_progress
     
-    if _update_in_progress:
+    # Try to acquire lock, return immediately if already locked
+    if _update_lock.locked():
+        print("⚠️  Update already in progress, skipping...")
         return
     
-    _update_in_progress = True
-    
-    # Clear completion flag at start
-    await cache.set_metric("data_update_complete", False)
-    
-    # Define total stages
-    total_stages = 12  # OUSG, USDY, Holders, Whales, Holders Trend, Concentration, Active Addresses, Transfer Trend, APY, NAV, Large Transfers, GDELT Events
-    current_stage = 0
-    
-    try:
-        print("🔄 Auto-updating data...")
+    async with _update_lock:
+        print(f"🔄 Starting data update at {datetime.now().strftime('%H:%M:%S')}")
         
-        # Update Dune metrics
+        # Clear completion flag at start
+        await cache.set_metric("data_update_complete", False)
+        
+        # Define total stages
+        total_stages = 12  # OUSG, USDY, Holders, Whales, Holders Trend, Concentration, Active Addresses, Transfer Trend, APY, NAV, Large Transfers, GDELT Events
+        current_stage = 0
+        
         try:
-            # Stage 1: OUSG Supply
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Fetching OUSG supply")
-            start_time = asyncio.get_event_loop().time()
-            ousg = await dune_client.get_ousg_supply()
-            latency = (asyncio.get_event_loop().time() - start_time) * 1000
-            await cache.set_metric("ousg_supply", ousg)
-            health_monitor.record_update("dune_ousg", latency)
-            print(f"✓ OUSG: ${ousg:,.2f}")
-            await asyncio.sleep(5)
+            print("🔄 Auto-updating data...")
             
-            # Stage 2: USDY Supply
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Fetching USDY supply")
-            start_time = asyncio.get_event_loop().time()
-            usdy = await dune_client.get_usdy_supply()
-            latency = (asyncio.get_event_loop().time() - start_time) * 1000
-            await cache.set_metric("usdy_supply", usdy)
-            health_monitor.record_update("dune_usdy", latency)
-            print(f"✓ USDY: ${usdy:,.2f}")
-            await asyncio.sleep(5)
-            
-            # Stage 3: Unique Holders
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Fetching unique holders")
-            start_time = asyncio.get_event_loop().time()
-            holders = await dune_client.get_unique_holders()
-            latency = (asyncio.get_event_loop().time() - start_time) * 1000
-            await cache.set_metric("unique_holders_7d", holders)
-            health_monitor.record_update("dune_holders", latency)
-            print(f"✓ Holders: {holders}")
-            await asyncio.sleep(5)
-            
-            # Stage 4: Whale Holders
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Fetching whale holders")
+            # Update Dune metrics
             try:
+                # Stage 1: OUSG Supply
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Fetching OUSG supply")
                 start_time = asyncio.get_event_loop().time()
-                whale_holders = await dune_client.get_whale_holders()
+                ousg = await dune_client.get_ousg_supply()
                 latency = (asyncio.get_event_loop().time() - start_time) * 1000
+                await cache.set_metric("ousg_supply", ousg)
+                health_monitor.record_update("dune_ousg", latency)
+                print(f"✓ OUSG: ${ousg:,.2f}")
+                await asyncio.sleep(5)
                 
-                # Enrich with Arkham labels
-                whale_holders = await arkham_client.enrich_whale_holders(whale_holders)
+                # Stage 2: USDY Supply
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Fetching USDY supply")
+                start_time = asyncio.get_event_loop().time()
+                usdy = await dune_client.get_usdy_supply()
+                latency = (asyncio.get_event_loop().time() - start_time) * 1000
+                await cache.set_metric("usdy_supply", usdy)
+                health_monitor.record_update("dune_usdy", latency)
+                print(f"✓ USDY: ${usdy:,.2f}")
+                await asyncio.sleep(5)
                 
-                await cache.set_metric("whale_holders", whale_holders)
-                print(f"✓ Whales: {len(whale_holders)}")
+                # Stage 3: Unique Holders
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Fetching unique holders")
+                start_time = asyncio.get_event_loop().time()
+                holders = await dune_client.get_unique_holders()
+                latency = (asyncio.get_event_loop().time() - start_time) * 1000
+                await cache.set_metric("unique_holders_7d", holders)
+                health_monitor.record_update("dune_holders", latency)
+                print(f"✓ Holders: {holders}")
                 await asyncio.sleep(5)
-            except Exception as e:
-                print(f"⚠️  Whales skipped: {str(e)[:50]}")
-            
-            # Stage 5: Holders Trend
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Fetching holders trend")
-            try:
-                start_time = asyncio.get_event_loop().time()
-                holders_trend = await dune_client.get_holders_trend()
-                latency = (asyncio.get_event_loop().time() - start_time) * 1000
-                await cache.set_metric("holders_trend", holders_trend)
-                print(f"✓ Holders trend: {len(holders_trend)} days")
-                await asyncio.sleep(5)
-            except Exception as e:
-                print(f"⚠️  Holders trend skipped: {str(e)[:50]}")
-            
-            # Stage 6: Concentration Ratio
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Fetching concentration ratio")
-            try:
-                start_time = asyncio.get_event_loop().time()
-                concentration = await dune_client.get_concentration_ratio()
-                latency = (asyncio.get_event_loop().time() - start_time) * 1000
-                await cache.set_metric("concentration_ratio", concentration)
-                print(f"✓ Concentration: {len(concentration)} days")
-                await asyncio.sleep(5)
-            except Exception as e:
-                print(f"⚠️  Concentration skipped: {str(e)[:50]}")
-            
-            # Stage 7: Daily Active Addresses
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Fetching active addresses")
-            try:
-                start_time = asyncio.get_event_loop().time()
-                daily_active = await dune_client.get_daily_active_addresses()
-                latency = (asyncio.get_event_loop().time() - start_time) * 1000
-                await cache.set_metric("daily_active_addresses", daily_active)
-                print(f"✓ Active addresses: {len(daily_active)} days")
-                await asyncio.sleep(5)
-            except Exception as e:
-                print(f"⚠️  Active addresses skipped: {str(e)[:50]}")
-            
-            # Stage 8: Transfer Trend
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Fetching transfer trend")
-            try:
-                start_time = asyncio.get_event_loop().time()
-                transfer_trend = await dune_client.get_transfer_count_trend()
-                latency = (asyncio.get_event_loop().time() - start_time) * 1000
-                await cache.set_metric("transfer_count_trend", transfer_trend)
-                health_monitor.record_update("dune_volume", latency)
-                print(f"✓ Transfer trend: {len(transfer_trend)} days")
-                await asyncio.sleep(5)
-            except Exception as e:
-                health_monitor.record_error("dune_volume")
-                print(f"⚠️  Transfer trend skipped: {str(e)[:50]}")
-            
-            # Stage 9: APY History
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Fetching APY history")
-            try:
-                start_time = asyncio.get_event_loop().time()
-                apy_history = await dune_client.get_apy_history()
-                latency = (asyncio.get_event_loop().time() - start_time) * 1000
-                await cache.set_metric("apy_history", apy_history)
-                print(f"✓ APY history: {len(apy_history)} days")
-            except Exception as e:
-                print(f"⚠️  APY skipped: {str(e)[:50]}")
-            
-            # Stage 10: NAV Deviation
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Calculating NAV deviation")
-            try:
-                # USDY NAV deviation (more liquid, traded on DEXes)
-                usdy_deviation = await price_client.get_nav_deviation(
-                    "0x96F6eF951840721AdBF46Ac996b59E0235CB985C",
-                    nav_value=1.0
-                )
-                if usdy_deviation is not None:
-                    await cache.set_metric("nav_deviation", usdy_deviation)
-                    print(f"✓ NAV deviation: {usdy_deviation:.2f}%")
-                else:
-                    # Default to 0 if price not available
-                    await cache.set_metric("nav_deviation", 0.0)
-                    print(f"ℹ️  NAV deviation: using default 0%")
-            except Exception as e:
-                await cache.set_metric("nav_deviation", 0.0)
-                print(f"⚠️  NAV deviation skipped: {str(e)[:50]}")
-            
-            # Stage 11: Large Transfers
-            current_stage += 1
-            await cache.set_update_progress(current_stage, total_stages, "Fetching large transfers")
-            try:
-                start_time = asyncio.get_event_loop().time()
-                large_transfers = await dune_client.get_large_transfers()
-                latency = (asyncio.get_event_loop().time() - start_time) * 1000
                 
-                # Extract unique addresses
-                addresses = set()
-                for transfer in large_transfers:
-                    from_addr = transfer.get('from_address')
-                    to_addr = transfer.get('to_address')
-                    if from_addr:
-                        addresses.add(from_addr)
-                    if to_addr:
-                        addresses.add(to_addr)
-                
-                # Enrich with Arkham labels
-                if addresses:
-                    print(f"🏷️  Enriching {len(addresses)} addresses from large transfers...")
-                    labels = await arkham_client.get_labels_for_addresses(list(addresses))
+                # Stage 4: Whale Holders
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Fetching whale holders")
+                try:
+                    start_time = asyncio.get_event_loop().time()
+                    whale_holders = await dune_client.get_whale_holders()
+                    latency = (asyncio.get_event_loop().time() - start_time) * 1000
                     
-                    # Add labels to transfers
+                    # Enrich with Arkham labels
+                    whale_holders = await arkham_client.enrich_whale_holders(whale_holders)
+                    
+                    await cache.set_metric("whale_holders", whale_holders)
+                    print(f"✓ Whales: {len(whale_holders)}")
+                    await asyncio.sleep(5)
+                except Exception as e:
+                    print(f"⚠️  Whales skipped: {str(e)[:50]}")
+                
+                # Stage 5: Holders Trend
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Fetching holders trend")
+                try:
+                    start_time = asyncio.get_event_loop().time()
+                    holders_trend = await dune_client.get_holders_trend()
+                    latency = (asyncio.get_event_loop().time() - start_time) * 1000
+                    await cache.set_metric("holders_trend", holders_trend)
+                    print(f"✓ Holders trend: {len(holders_trend)} days")
+                    await asyncio.sleep(5)
+                except Exception as e:
+                    print(f"⚠️  Holders trend skipped: {str(e)[:50]}")
+                
+                # Stage 6: Concentration Ratio
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Fetching concentration ratio")
+                try:
+                    start_time = asyncio.get_event_loop().time()
+                    concentration = await dune_client.get_concentration_ratio()
+                    latency = (asyncio.get_event_loop().time() - start_time) * 1000
+                    await cache.set_metric("concentration_ratio", concentration)
+                    print(f"✓ Concentration: {len(concentration)} days")
+                    await asyncio.sleep(5)
+                except Exception as e:
+                    print(f"⚠️  Concentration skipped: {str(e)[:50]}")
+                
+                # Stage 7: Daily Active Addresses
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Fetching active addresses")
+                try:
+                    start_time = asyncio.get_event_loop().time()
+                    daily_active = await dune_client.get_daily_active_addresses()
+                    latency = (asyncio.get_event_loop().time() - start_time) * 1000
+                    await cache.set_metric("daily_active_addresses", daily_active)
+                    print(f"✓ Active addresses: {len(daily_active)} days")
+                    await asyncio.sleep(5)
+                except Exception as e:
+                    print(f"⚠️  Active addresses skipped: {str(e)[:50]}")
+                
+                # Stage 8: Transfer Trend
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Fetching transfer trend")
+                try:
+                    start_time = asyncio.get_event_loop().time()
+                    transfer_trend = await dune_client.get_transfer_count_trend()
+                    latency = (asyncio.get_event_loop().time() - start_time) * 1000
+                    await cache.set_metric("transfer_count_trend", transfer_trend)
+                    health_monitor.record_update("dune_volume", latency)
+                    print(f"✓ Transfer trend: {len(transfer_trend)} days")
+                    await asyncio.sleep(5)
+                except Exception as e:
+                    health_monitor.record_error("dune_volume")
+                    print(f"⚠️  Transfer trend skipped: {str(e)[:50]}")
+                
+                # Stage 9: APY History
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Fetching APY history")
+                try:
+                    start_time = asyncio.get_event_loop().time()
+                    apy_history = await dune_client.get_apy_history()
+                    latency = (asyncio.get_event_loop().time() - start_time) * 1000
+                    await cache.set_metric("apy_history", apy_history)
+                    print(f"✓ APY history: {len(apy_history)} days")
+                except Exception as e:
+                    print(f"⚠️  APY skipped: {str(e)[:50]}")
+                
+                # Stage 10: NAV Deviation
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Calculating NAV deviation")
+                try:
+                    # USDY NAV deviation (more liquid, traded on DEXes)
+                    usdy_deviation = await price_client.get_nav_deviation(
+                        "0x96F6eF951840721AdBF46Ac996b59E0235CB985C",
+                        nav_value=1.0
+                    )
+                    if usdy_deviation is not None:
+                        await cache.set_metric("nav_deviation", usdy_deviation)
+                        print(f"✓ NAV deviation: {usdy_deviation:.2f}%")
+                    else:
+                        # Default to 0 if price not available
+                        await cache.set_metric("nav_deviation", 0.0)
+                        print(f"ℹ️  NAV deviation: using default 0%")
+                except Exception as e:
+                    await cache.set_metric("nav_deviation", 0.0)
+                    print(f"⚠️  NAV deviation skipped: {str(e)[:50]}")
+                
+                # Stage 11: Large Transfers
+                current_stage += 1
+                await cache.set_update_progress(current_stage, total_stages, "Fetching large transfers")
+                try:
+                    start_time = asyncio.get_event_loop().time()
+                    large_transfers = await dune_client.get_large_transfers()
+                    latency = (asyncio.get_event_loop().time() - start_time) * 1000
+                    
+                    # Extract unique addresses
+                    addresses = set()
                     for transfer in large_transfers:
                         from_addr = transfer.get('from_address')
                         to_addr = transfer.get('to_address')
+                        if from_addr:
+                            addresses.add(from_addr)
+                        if to_addr:
+                            addresses.add(to_addr)
+                    
+                    # Enrich with Arkham labels
+                    if addresses:
+                        print(f"🏷️  Enriching {len(addresses)} addresses from large transfers...")
+                        labels = await arkham_client.get_labels_for_addresses(list(addresses))
                         
-                        from_label = labels.get(from_addr, {})
-                        to_label = labels.get(to_addr, {})
-                        
-                        transfer['from_label'] = from_label.get('label') if from_label else None
-                        transfer['from_entity_type'] = from_label.get('entity_type') if from_label else None
-                        transfer['to_label'] = to_label.get('label') if to_label else None
-                        transfer['to_entity_type'] = to_label.get('entity_type') if to_label else None
+                        # Add labels to transfers
+                        for transfer in large_transfers:
+                            from_addr = transfer.get('from_address')
+                            to_addr = transfer.get('to_address')
+                            
+                            from_label = labels.get(from_addr, {})
+                            to_label = labels.get(to_addr, {})
+                            
+                            transfer['from_label'] = from_label.get('label') if from_label else None
+                            transfer['from_entity_type'] = from_label.get('entity_type') if from_label else None
+                            transfer['to_label'] = to_label.get('label') if to_label else None
+                            transfer['to_entity_type'] = to_label.get('entity_type') if to_label else None
+                    
+                    await cache.set_metric("large_transfers", large_transfers)
+                    print(f"✓ Large transfers: {len(large_transfers)} transfers")
+                    await asyncio.sleep(5)
+                except Exception as e:
+                    print(f"⚠️  Large transfers skipped: {str(e)[:50]}")
                 
-                await cache.set_metric("large_transfers", large_transfers)
-                print(f"✓ Large transfers: {len(large_transfers)} transfers")
-                await asyncio.sleep(5)
+                print("✓ Dune metrics updated")
+                
+                # Generate AI commentary after successful data update - read from DB
+                try:
+                    print("🤖 Generating AI commentary...")
+                    
+                    ousg = await cache.get_metric("ousg_supply") or 0
+                    usdy = await cache.get_metric("usdy_supply") or 0
+                    holders = await cache.get_metric("unique_holders_7d") or 0
+                    events = await cache.get_recent_events(hours=24, limit=20)
+                    whale_holders = await cache.get_metric("whale_holders") or []
+                    holders_trend = await cache.get_metric("holders_trend") or []
+                    concentration_ratio = await cache.get_metric("concentration_ratio") or []
+                    apy_history = await cache.get_metric("apy_history") or []
+                    nav_deviation = await cache.get_metric("nav_deviation") or 0
+                    transfer_trend = await cache.get_metric("transfer_count_trend") or []
+                    daily_active = await cache.get_metric("daily_active_addresses") or []
+                    large_transfers = await cache.get_metric("large_transfers") or []
+                    
+                    commentary = await commentary_generator.generate_commentary(
+                        ousg_supply=ousg,
+                        usdy_supply=usdy,
+                        holders=holders,
+                        events=events,
+                        whale_holders=whale_holders,
+                        holders_trend=holders_trend,
+                        concentration_ratio=concentration_ratio,
+                        apy_history=apy_history,
+                        nav_deviation=nav_deviation,
+                        transfer_trend=transfer_trend,
+                        daily_active=daily_active,
+                        large_transfers=large_transfers,
+                        force=True
+                    )
+                    
+                    print(f"✓ AI commentary generated")
+                except Exception as e:
+                    print(f"⚠️  Commentary generation failed: {e}")
+                    import traceback
+                    traceback.print_exc()
+                
+                # Mark data update as complete AFTER everything is done
+                await cache.set_metric("data_update_complete", True)
+                
             except Exception as e:
-                print(f"⚠️  Large transfers skipped: {str(e)[:50]}")
-            
-            print("✓ Dune metrics updated")
-            
-            # Generate AI commentary after successful data update - read from DB
-            try:
-                print("🤖 Generating AI commentary...")
-                
-                ousg = await cache.get_metric("ousg_supply") or 0
-                usdy = await cache.get_metric("usdy_supply") or 0
-                holders = await cache.get_metric("unique_holders_7d") or 0
-                events = await cache.get_recent_events(hours=24, limit=20)
-                whale_holders = await cache.get_metric("whale_holders") or []
-                holders_trend = await cache.get_metric("holders_trend") or []
-                concentration_ratio = await cache.get_metric("concentration_ratio") or []
-                apy_history = await cache.get_metric("apy_history") or []
-                nav_deviation = await cache.get_metric("nav_deviation") or 0
-                transfer_trend = await cache.get_metric("transfer_count_trend") or []
-                daily_active = await cache.get_metric("daily_active_addresses") or []
-                large_transfers = await cache.get_metric("large_transfers") or []
-                
-                commentary = await commentary_generator.generate_commentary(
-                    ousg_supply=ousg,
-                    usdy_supply=usdy,
-                    holders=holders,
-                    events=events,
-                    whale_holders=whale_holders,
-                    holders_trend=holders_trend,
-                    concentration_ratio=concentration_ratio,
-                    apy_history=apy_history,
-                    nav_deviation=nav_deviation,
-                    transfer_trend=transfer_trend,
-                    daily_active=daily_active,
-                    large_transfers=large_transfers,
-                    force=True
-                )
-                
-                print(f"✓ AI commentary generated")
-            except Exception as e:
-                print(f"⚠️  Commentary generation failed: {e}")
+                health_monitor.record_error("dune_ousg")
+                health_monitor.record_error("dune_usdy")
+                health_monitor.record_error("dune_holders")
+                print(f"✗ Dune update error: {e}")
                 import traceback
                 traceback.print_exc()
+                # Still mark as complete so page doesn't hang
+                await cache.set_metric("data_update_complete", True)
             
-            # Mark data update as complete AFTER everything is done
-            await cache.set_metric("data_update_complete", True)
+            # Stage 12: GDELT Events
+            current_stage += 1
+            await cache.set_update_progress(current_stage, total_stages, "Fetching GDELT events")
+            try:
+                start_time = asyncio.get_event_loop().time()
+                events = await gdelt_client.search_events(hours=24, max_records=20)
+                latency = (asyncio.get_event_loop().time() - start_time) * 1000
+                for event in events:
+                    await cache.add_event(event)
+                health_monitor.record_update("gdelt_events", latency)
+                print(f"✓ GDELT events updated ({len(events)} events)")
+            except Exception as e:
+                health_monitor.record_error("gdelt_events")
+                print(f"✗ GDELT update error: {e}")
             
+            # Clear progress after completion
+            await cache.set_update_progress(total_stages, total_stages, "Complete")
+            print(f"✓ Data update complete at {datetime.now().strftime('%H:%M:%S')}")
+        
         except Exception as e:
-            health_monitor.record_error("dune_ousg")
-            health_monitor.record_error("dune_usdy")
-            health_monitor.record_error("dune_holders")
-            print(f"✗ Dune update error: {e}")
+            print(f"❌ Fatal error in update_all_data: {e}")
             import traceback
             traceback.print_exc()
-            # Still mark as complete so page doesn't hang
-            await cache.set_metric("data_update_complete", True)
-        
-        # Stage 12: GDELT Events
-        current_stage += 1
-        await cache.set_update_progress(current_stage, total_stages, "Fetching GDELT events")
-        try:
-            start_time = asyncio.get_event_loop().time()
-            events = await gdelt_client.search_events(hours=24, max_records=20)
-            latency = (asyncio.get_event_loop().time() - start_time) * 1000
-            for event in events:
-                await cache.add_event(event)
-            health_monitor.record_update("gdelt_events", latency)
-            print(f"✓ GDELT events updated ({len(events)} events)")
-        except Exception as e:
-            health_monitor.record_error("gdelt_events")
-            print(f"✗ GDELT update error: {e}")
-        
-        # Clear progress after completion
-        await cache.set_update_progress(total_stages, total_stages, "Complete")
-        
-    finally:
-        _update_in_progress = False
 
 
 async def check_and_update_cache():
@@ -387,7 +392,7 @@ async def check_and_update_cache():
     
     # Check if data is older than 1 hour - trigger background update
     ousg_fresh = await cache.get_metric("ousg_supply", max_age_minutes=60)
-    if ousg_fresh is None and not _update_in_progress:
+    if ousg_fresh is None and not _update_lock.locked():
         print("ℹ️  Data is stale (>1 hour), triggering background update...")
         asyncio.create_task(update_all_data())
     
@@ -465,7 +470,7 @@ async def get_metrics_html(request: Request):
         tvl = ousg_supply + usdy_supply
         
         # Check if update is in progress
-        is_updating = _update_in_progress
+        is_updating = _update_lock.locked()
         
         return templates.TemplateResponse(
             "partials/metrics.html",
@@ -661,9 +666,8 @@ async def market_commentary(force: bool = False):
 @app.post("/api/update")
 async def trigger_manual_update():
     """Trigger manual data update"""
-    global _update_in_progress
     
-    if _update_in_progress:
+    if _update_lock.locked():
         return {"status": "already_updating", "message": "Update already in progress"}
     
     # Start update in background
@@ -679,7 +683,7 @@ async def get_update_status():
     last_update_ts = await cache.get_metric_timestamp("ousg_supply")
     
     return {
-        "is_updating": _update_in_progress,
+        "is_updating": _update_lock.locked(),
         "last_update": last_update_ts.isoformat() if last_update_ts else None,
         "progress": progress
     }
